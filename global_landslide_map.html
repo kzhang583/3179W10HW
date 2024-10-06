@@ -61,86 +61,88 @@
 
     // Second visualization (Australian Landslide Time Series)
     var spec2 = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "description": "Time series of Australian landslide events in Australia.",
-      "data": {
-        "name": "source_1",
-        "url": "https://raw.githubusercontent.com/kzhang583/3179W9HW/main/Global_Landslide_Catalog_Export.csv",
-        "format": {
-          "type": "csv"
-        }
-      },
-      "transform": [
-        {
-          "filter": "datum.country_code == 'AU'"
-        },
-        {
-          "calculate": "year(datum.event_date)", 
-          "as": "year"
-        }
-      ],
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Time series of Australian landslide events in Australia.",
+  "data": {
+    "name": "source_1",
+    "url": "https://raw.githubusercontent.com/kzhang583/3179W9HW/main/Global_Landslide_Catalog_Export.csv",
+    "format": {
+      "type": "csv"
+    }
+  },
+  "transform": [
+    {
+      "filter": "datum.country_code == 'AU'"
+    },
+    {
+      "calculate": "year(datum.event_date)", 
+      "as": "year"
+    }
+  ],
+  "mark": {
+    "type": "line",
+    "point": {
+      "filled": true,
+      "size": 80
+    }
+  },
+  "encoding": {
+    "x": {
+      "field": "year",
+      "type": "ordinal",
+      "title": "Year"
+    },
+    "y": {
+      "aggregate": "count",
+      "type": "quantitative",
+      "title": "Number of Events"
+    },
+    "tooltip": [
+      {"field": "year", "title": "Year"},
+      {"aggregate": "count", "type": "quantitative", "title": "Event Count"}
+    ]
+  },
+  "layer": [
+    {
+      "mark": "line"
+    },
+    {
+      "mark": "point"
+    },
+    {
       "mark": {
-        "type": "line",
-        "point": {
-          "filled": true,
-          "size": 80
-        }
+        "type": "text",
+        "align": "left",
+        "dx": 5,
+        "dy": -5
+      },
+      "encoding": {
+        "text": {"aggregate": "count", "type": "quantitative"}
+      }
+    },
+    {
+      "mark": {
+        "type": "rule",
+        "color": "red"
       },
       "encoding": {
         "x": {
-          "field": "year",
-          "type": "ordinal",
-          "title": "Year"
+          "datum": 2011, 
+          "type": "ordinal"
         },
-        "y": {
-          "aggregate": "count",
-          "type": "quantitative",
-          "title": "Number of Events"
-        },
-        "tooltip": [
-          {"field": "year", "title": "Year"},
-          {"aggregate": "count", "type": "quantitative", "title": "Event Count"}
-        ]
-      },
-      "layer": [
-        {
-          "mark": "line"
-        },
-        {
-          "mark": "point"
-        },
-        {
-          "mark": {
-            "type": "text",
-            "align": "left",
-            "dx": 5,
-            "dy": -5
-          },
-          "encoding": {
-            "text": {"aggregate": "count", "type": "quantitative"}
-          }
-        },
-        {
-          "mark": {
-            "type": "rule",
-            "color": "red"
-          },
-          "encoding": {
-            "x": {
-              "datum": 2011, 
-              "type": "ordinal"
-            },
-            "tooltip": {"value": "Year with most landslide events"}
-          }
-        }
-      ],
-      "selection": {
-        "yearFilter": {
-          "type": "interval",
-          "encodings": ["x"]
-        }
+        "tooltip": {"value": "Year with most landslide events"}
       }
-    };
+    }
+  ],
+  "selection": {
+    "yearFilter": {
+      "type": "interval",
+      "encodings": ["x"]
+    }
+  }
+}}
+
 
     // Embed the first visualization
     vegaEmbed('#vis1', spec1).then(function(result) {
