@@ -1,153 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vega-Lite Visualizations</title>
-    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vega-Lite Visualizations</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 </head>
 <body>
 
-    <h2>World Map of Global Landslide Events</h2>
-    <div id="vis1"></div>
+  <h1>Global Landslide Events Map</h1>
+  <div id="vis1"></div>
 
-    <h2>Time Series of Australian Landslide Events</h2>
-    <div id="vis2"></div>
+  <h1>Time Series of Australian Landslide Events</h1>
+  <div id="vis2"></div>
 
-    <script type="text/javascript">
-        // First visualization: World map with landslide events
-        const spec1 = {
-          "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-          "width": 800,
-          "height": 600,
-          "projection": {
-            "type": "equirectangular"
-          },
-          "layer": [
-            {
-              "data": {
-                "url": "https://vega.github.io/vega-datasets/data/world-110m.json",
-                "format": {
-                  "type": "topojson",
-                  "feature": "countries"
-                }
-              },
-              "mark": {
-                "type": "geoshape",
-                "fill": "lightgray",
-                "stroke": "white"
-              }
-            },
-            {
-              "data": {
-                "url": "https://raw.githubusercontent.com/kzhang583/3179W9HW/main/Global_Landslide_Catalog_Export.csv"
-              },
-              "mark": "circle",
-              "encoding": {
-                "longitude": {"field": "longitude", "type": "quantitative"},
-                "latitude": {"field": "latitude", "type": "quantitative"},
-                "size": {"value": 30},
-                "color": {"value": "#8B4513"},  // Lighter brown/mud color
-                "tooltip": [
-                  {"field": "event_title", "type": "nominal", "title": "Event"},
-                  {"field": "event_date", "type": "temporal", "title": "Date"}
-                ]
-              }
-            }
-          ]
-        };
-
-        // Second visualization: Time series of landslide events in Australia
-        const spec2 = {
-          "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-          "description": "Time series of Australian landslide events in Australia.",
+  <script type="text/javascript">
+    // First visualization (Global Landslide Map)
+    var spec1 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "width": 800,
+      "height": 600,
+      "projection": {
+        "type": "equirectangular"
+      },
+      "layer": [
+        {
           "data": {
-            "name": "source_1",
-            "url": "https://raw.githubusercontent.com/kzhang583/3179W9HW/main/Global_Landslide_Catalog_Export.csv",
+            "url": "https://vega.github.io/vega-datasets/data/world-110m.json",
             "format": {
-              "type": "csv"
+              "type": "topojson",
+              "feature": "countries"
             }
           },
-          "transform": [
-            {
-              "filter": "datum.country_code == 'AU'"
-            },
-            {
-              "calculate": "year(datum.event_date)", 
-              "as": "year"
-            }
-          ],
           "mark": {
-            "type": "line",
-            "point": {
-              "filled": true,
-              "size": 80
-            }
+            "type": "geoshape",
+            "fill": "lightgray",
+            "stroke": "white"
+          }
+        },
+        {
+          "data": {
+            "url": "https://raw.githubusercontent.com/kzhang583/3179W9HW/main/Global_Landslide_Catalog_Export.csv"
+          },
+          "mark": "circle",
+          "encoding": {
+            "longitude": {"field": "longitude", "type": "quantitative"},
+            "latitude": {"field": "latitude", "type": "quantitative"},
+            "size": {"value": 30},
+            "color": {"value": "#8B4513"},  // Lighter brown/mud color
+            "tooltip": [
+              {"field": "event_title", "type": "nominal", "title": "Event"},
+              {"field": "event_date", "type": "temporal", "title": "Date"}
+            ]
+          }
+        }
+      ]
+    };
+
+    // Second visualization (Australian Landslide Time Series)
+    var spec2 = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "description": "Time series of Australian landslide events in Australia.",
+      "data": {
+        "name": "source_1",
+        "url": "https://raw.githubusercontent.com/kzhang583/3179W9HW/main/Global_Landslide_Catalog_Export.csv",
+        "format": {
+          "type": "csv"
+        }
+      },
+      "transform": [
+        {
+          "filter": "datum.country_code == 'AU'"
+        },
+        {
+          "calculate": "year(datum.event_date)", 
+          "as": "year"
+        }
+      ],
+      "mark": {
+        "type": "line",
+        "point": {
+          "filled": true,
+          "size": 80
+        }
+      },
+      "encoding": {
+        "x": {
+          "field": "year",
+          "type": "ordinal",
+          "title": "Year"
+        },
+        "y": {
+          "aggregate": "count",
+          "type": "quantitative",
+          "title": "Number of Events"
+        },
+        "tooltip": [
+          {"field": "year", "title": "Year"},
+          {"aggregate": "count", "type": "quantitative", "title": "Event Count"}
+        ]
+      },
+      "layer": [
+        {
+          "mark": "line"
+        },
+        {
+          "mark": "point"
+        },
+        {
+          "mark": {
+            "type": "text",
+            "align": "left",
+            "dx": 5,
+            "dy": -5
+          },
+          "encoding": {
+            "text": {"aggregate": "count", "type": "quantitative"}
+          }
+        },
+        {
+          "mark": {
+            "type": "rule",
+            "color": "red"
           },
           "encoding": {
             "x": {
-              "field": "year",
-              "type": "ordinal",
-              "title": "Year"
+              "datum": 2011, 
+              "type": "ordinal"
             },
-            "y": {
-              "aggregate": "count",
-              "type": "quantitative",
-              "title": "Number of Events"
-            },
-            "tooltip": [
-              {"field": "year", "title": "Year"},
-              {"aggregate": "count", "type": "quantitative", "title": "Event Count"}
-            ]
-          },
-          "layer": [
-            {
-              "mark": "line"
-            },
-            {
-              "mark": "point"
-            },
-            {
-              "mark": {
-                "type": "text",
-                "align": "left",
-                "dx": 5,
-                "dy": -5
-              },
-              "encoding": {
-                "text": {"aggregate": "count", "type": "quantitative"}
-              }
-            },
-            {
-              "mark": {
-                "type": "rule",
-                "color": "red"
-              },
-              "encoding": {
-                "x": {
-                  "datum": 2011, 
-                  "type": "ordinal"
-                },
-                "tooltip": {"value": "Year with most landslide events"}
-              }
-            }
-          ],
-          "selection": {
-            "yearFilter": {
-              "type": "interval",
-              "encodings": ["x"]
-            }
+            "tooltip": {"value": "Year with most landslide events"}
           }
-        };
+        }
+      ],
+      "selection": {
+        "yearFilter": {
+          "type": "interval",
+          "encodings": ["x"]
+        }
+      }
+    };
 
-        // Embed the first visualization
-        vegaEmbed('#vis1', spec1).catch(console.warn);
+    // Embed the first visualization
+    vegaEmbed('#vis1', spec1).then(function(result) {
+      // Access the Vega view instance as result.view
+    }).catch(console.error);
 
-        // Embed the second visualization
-        vegaEmbed('#vis2', spec2).catch(console.warn);
-    </script>
+    // Embed the second visualization
+    vegaEmbed('#vis2', spec2).then(function(result) {
+      // Access the Vega view instance as result.view
+    }).catch(console.error);
+  </script>
 
 </body>
 </html>
