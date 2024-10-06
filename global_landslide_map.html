@@ -3,23 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Global Landslide Map and Event Count Graph</title>
+  <title>Global Landslide Map and Line Chart</title>
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 </head>
 <body>
-  <h1>Global Landslide Map and Event Count Graph</h1>
-  
-  <h2>Global Landslide Map</h2>
-  <div id="landslide-vis"></div>
+  <h1>Global Landslide Map</h1>
+  <div id="mapVis"></div>
 
-  <h2>Event Count by Year</h2>
-  <div id="event-count-vis"></div>
+  <h1>Australian Landslide Events Over Time</h1>
+  <div id="lineChartVis"></div>
 
   <script type="text/javascript">
-    // Global Landslide Map Visualization
-    const landslideSpec = {
+    // Map specification
+    const mapSpec = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
       "width": 800,
       "height": 600,
@@ -50,7 +48,7 @@
             "longitude": {"field": "longitude", "type": "quantitative"},
             "latitude": {"field": "latitude", "type": "quantitative"},
             "size": {"value": 30},
-            "color": {"value": "#8B4513"},  // Lighter brown/mud color
+            "color": {"value": "#8B4513"},  <!-- Lighter brown/mud color -->
             "tooltip": [
               {"field": "event_title", "type": "nominal", "title": "Event"},
               {"field": "event_date", "type": "temporal", "title": "Date"}
@@ -60,56 +58,106 @@
       ]
     };
 
-    // Event Count Graph Visualization
-    const eventCountSpec = {
+    // Line chart specification
+    const lineChartSpec = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "width": 800,
-      "height": 400,
+      "description": "Time series of Australian landslide events with distinct event counting and an annotation for 2011.",
       "data": {
-        "url": "https://raw.githubusercontent.com/kzhang583/3179W9HW/main/Global_Landslide_Catalog_Export.csv"
+        "name": "source_1",
+        "url": "https://raw.githubusercontent.com/kzhang583/3179W9HW/main/Global_Landslide_Catalog_Export.csv",
+        "format": {
+          "type": "csv"
+        }
       },
       "transform": [
         {
-          "filter": "datum.Population > 0", // Adjust filtering if needed
+          "filter": "datum.country_code == 'AU'"
         },
         {
-          "aggregate": [
-            {
-              "op": "count",
-              "field": "event_id",  // Replace with your actual event identifier field
-              "as": "event_count"
-            }
-          ],
-          "groupby": ["event_year"] // Replace with the field that represents the year of each event
+          "calculate": "year(datum.event_date)",
+          "as": "Year"
         }
       ],
-      "mark": "bar",
+      "mark": {
+        "type": "line",
+        "point": {
+          "filled": true,
+          "size": 80
+        }
+      },
       "encoding": {
         "x": {
-          "field": "event_year",  // Replace with the year field
-          "type": "ordinal"  // Use "temporal" if your year field is in date format
+          "field": "Year",
+          "type": "ordinal",
+          "title": "Year"
         },
         "y": {
-          "field": "event_count",
+          "aggregate": "distinct",
+          "field": "event_id",
           "type": "quantitative",
-          "title": "Number of Events"
+          "title": "Number of Unique Events"
         },
         "tooltip": [
-          {"field": "event_year", "type": "ordinal"},
-          {"field": "event_count", "type": "quantitative"}
+          {"field": "Year", "title": "Year"},
+          {"aggregate": "distinct", "field": "event_id", "type": "quantitative", "title": "Number of Unique Events"}
         ]
-      }
+      },
+      "layer": [
+        {
+          "mark": "line"
+        },
+        {
+          "mark": "point"
+        },
+        {
+          "mark": {
+            "type": "rule",
+            "color": "red",
+            "size": 2
+          },
+          "encoding": {
+            "x": {
+              "datum": 2011,
+              "type": "ordinal"
+            }
+          }
+        },
+        {
+          "mark": {
+            "type": "text",
+            "align": "left",
+            "baseline": "middle",
+            "dx": 5,
+            "dy": -10,
+            "color": "red",
+            "fontWeight": "bold",
+            "fontSize": 10  // Adjust the font size here
+          },
+          "encoding": {
+            "x": {
+              "datum": 2011,
+              "type": "ordinal"
+            },
+            "y": {
+              "datum": 24  // Position the text based on the highest event count (adjust as needed)
+            },
+            "text": {
+              "value": "Year with most landslide events"
+            }
+          }
+        }
+      ]
     };
 
-    // Render the Global Landslide Map
-    vegaEmbed('#landslide-vis', landslideSpec).then(result => {
-      console.log("Landslide Map:", result);
+    // Embed both visualizations
+    vegaEmbed('#mapVis', mapSpec).then(result => {
+      console.log("Map embedded:", result);
     }).catch(console.error);
 
-    // Render the Event Count Graph
-    vegaEmbed('#event-count-vis', eventCountSpec).then(result => {
-      console.log("Event Count Graph:", result);
+    vegaEmbed('#lineChartVis', lineChartSpec).then(result => {
+      console.log("Line chart embedded:", result);
     }).catch(console.error);
+
   </script>
 </body>
 </html>
